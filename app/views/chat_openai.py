@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
+import json
 import os
 
 from flask_restx import Resource, fields, Namespace
@@ -7,7 +8,7 @@ import openai
 
 from app.models.openapi import OpenAI, Conversation
 from utils.exception import Success, ParameterError
-from utils.openai_util import davin_ci_003
+from utils.openai_util import davin_ci_002
 
 ns = Namespace("openai", description="chat openai api")
 openai.api_key = os.getenv('openai_key')
@@ -21,6 +22,12 @@ text_model = ns.model('TextModel', {
     'uid': fields.Integer(description='用户ID'),
     'cid': fields.Integer(description='会话ID'),
     'text': fields.String(max_length=500, required=True, description='文本输入'),
+})
+
+message_model = ns.model('MessageModel', {
+    'model': fields.String(max_length=500, description='model'),
+    'max_tokens': fields.Integer(description='max_tokens'),
+    'message': fields.String(max_length=500, required=True, description='文本输入')
 })
 
 
@@ -66,10 +73,9 @@ class DavinCiView(Resource):
         objs = OpenAI.query.filter_by(**base_params).order_by('created_at')
         text_list = [obj.text for obj in objs]
         ai_text = 'You: 你好呀?\nFriend: 你好!\n' + '\n'.join(text_list)
-        DAVIN_CI003 = davin_ci_003(ai_text)
+        DAVIN_CI002 = davin_ci_002(ai_text)
         # 获取openai响应
-        resp = openai.Completion.create(**DAVIN_CI003)
-        print(resp)
+        resp = openai.Completion.create(**DAVIN_CI002)
         resp_text = resp['choices'][0]['text'].strip()
         # 处理返回值
         resp_text = resp_text if 'Friend' in resp_text else 'Friend: ' + resp_text
@@ -77,4 +83,25 @@ class DavinCiView(Resource):
         resp_obj = OpenAI(text=resp_text, text_type=2, **base_params)
         resp_obj.save()
         data = resp_text.split('Friend: ')[1]
+        return Success(data=data)()
+
+
+@ns.route("/simple", strict_slashes=False)
+class SimpleView(Resource):
+    @ns.doc('简单对话')
+    @ns.expect(message_model, validate=True)
+    def post(self):
+        text = ns.payload.get('message')
+        if not text:
+            return ParameterError()()
+        model = ns.payload.get('model') or "text-davinci-002"
+        max_tokens = ns.payload.get('max_tokens') or 2000
+        # 获取openai响应
+        resp = openai.Completion.create(
+            model=model,
+            prompt=text,
+            max_tokens=max_tokens,
+        )
+        # print(json.loads(json.dumps(resp)))
+        data = resp['choices'][0]['text']
         return Success(data=data)()

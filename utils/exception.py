@@ -98,7 +98,3 @@ class AuthFailed(APIException):
 class Forbidden(APIException):
     code = '403'  # 无权限访问
     msg = 'not auth'
-
-
-a = AuthFailed()()
-print(a, type(a))
