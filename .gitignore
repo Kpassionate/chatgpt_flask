@@ -17,6 +17,7 @@
 .thumbnails
 migrations/
 base_info.py
+uwsgi.pid
 
 
 
