@@ -2,13 +2,15 @@
 # -*- coding: UTF-8 -*-
 import json
 import os
-
-from flask_restx import Resource, fields, Namespace
 import openai
-
+from flask_restx import Resource, fields, Namespace
 from app.models.openapi import OpenAI, Conversation
 from utils.exception import Success, ParameterError
 from utils.openai_util import davin_ci_002
+import logging
+
+# 日志调用
+log = logging.getLogger('app')
 
 ns = Namespace("openai", description="chat openai api")
 openai.api_key = os.getenv('openai_key')
@@ -92,6 +94,7 @@ class SimpleView(Resource):
     @ns.expect(message_model, validate=True)
     def post(self):
         text = ns.payload.get('message')
+        log.info(f'请求入参--{text}')
         if not text:
             return ParameterError()()
         model = ns.payload.get('model') or "text-davinci-002"

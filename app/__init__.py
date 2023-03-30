@@ -11,6 +11,7 @@ from app.models.base import db
 import time
 import logging
 from logging.handlers import RotatingFileHandler
+from settings.middleware import Middleware
 
 
 def create_app():
@@ -39,4 +40,5 @@ def create_app():
     log_handler.setFormatter(log_formatter)
     log_handler.setLevel(logging.INFO)
     app.logger.addHandler(log_handler)
+    app.wsgi_app = Middleware(app.wsgi_app)
     return app

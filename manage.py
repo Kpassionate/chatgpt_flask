@@ -2,25 +2,25 @@ import json
 from app import create_app
 from flask import request, jsonify
 
-app = create_app()
+application = create_app()
 
 
-# 中间件
-@app.before_request
-def get_request_info():
-    """请求"""
-    request_info = {
-        'method': request.method,
-        'url': request.url,
-        'params': request.json
-    }
-    app.logger.info(request_info)
+# 中间件 <此响应之前的方法和flask_resx有冲突，先不使用>
+# @application.before_request
+# def get_request_info():
+#     """请求"""
+#     request_info = {
+#         'method': request.method,
+#         'url': request.url,
+#         'params': request.json
+#     }
+#     application.logger.info(request_info)
 
 
-@app.errorhandler(Exception)
+@application.errorhandler(Exception)
 def handle_value_error(e):
     """异常"""
-    app.logger.error(str(e))
+    application.logger.error(str(e))
     if hasattr(e, 'code'):
         response = jsonify({'error': e.name + e.description})
         response.status_code = e.code
@@ -30,7 +30,7 @@ def handle_value_error(e):
     return response
 
 
-@app.after_request
+@application.after_request
 def handle_response(response):
     """响应"""
     status = response.status_code
@@ -44,4 +44,4 @@ def handle_response(response):
 
 
 if __name__ == "__main__":
-    app.run()
+    application.run()
