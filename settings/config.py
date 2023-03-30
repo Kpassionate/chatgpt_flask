@@ -6,6 +6,7 @@ import datetime
 
 class Config(object):
     DEBUG = False
+    TIMEZONE = 'Asia/Shanghai'
     JSON_AS_ASCII = False  # 这个配置可以确保http请求返回的json数据中正常显示中文
     SECRET_KEY = 'scd8^lub*29ds'
     TOKEN_EXPIRATION = 30 * 24 * 3600  # token 时长30天
