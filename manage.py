@@ -21,7 +21,7 @@ application = create_app()
 def handle_value_error(e):
     """异常"""
     application.logger.error(str(e))
-    if hasattr(e, 'code'):
+    if hasattr(e, 'code') and hasattr(e, 'name') and hasattr(e, 'description'):
         response = jsonify({'error': e.name + e.description})
         response.status_code = e.code
     else:
