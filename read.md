@@ -24,5 +24,3 @@ run 时可添加命令
 直接杀死supervisor
 
 supervisorctl shutdown
-
-啊啊啊
